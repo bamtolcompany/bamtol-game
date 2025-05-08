@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>밤톨 게임</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: green;
+      font-family: sans-serif;
+    }
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 300px;
+      background-color: powderblue;
+      border-bottom: 2px solid #333;
+      overflow: hidden;
+    }
+    #dino {
+      position: absolute;
+      left: 50px;
+      bottom: 0;
+      width: 40px;
+      height: 40px;
+      background-color: blue;
+      font-size: 40px;
+    }
+    #cactus {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 20px;
+      height: 40px;
+      background-color: red;
+      animation: moveCactus 1.5s linear infinite;
+    }
+    @keyframes moveCactus {
+      0% { right: -20px; }
+      100% { right: 100vw; }
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    .cloud {
+      width: 300px;
+      background-color: white;
+      height: 50px;
+      position: absolute;
+      top: 80px;
+      left: 120px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="score">점수: 0</div>
+    <div class="cloud"></div>
+    <img src="bamtol.png" id="dino">
+    <div id="cactus"></div>
+  </div>
+  <script>
+    const dino = document.getElementById("dino");
+    const cactus = document.getElementById("cactus");
+    const scoreDisplay = document.getElementById("score");
+
+    let isJumping = false;
+    let velocity = 0;
+    let gravity = -0.8;
+    let position = 0;
+    let score = 0;
+    let jumpedOver = false;
+
+    function jump() {
+      if (isJumping) return;
+      isJumping = true;
+      velocity = 15; // 점프 초기 속도
+    }
+
+    function gameLoop() {
+      // 점프 물리 처리
+      if (isJumping) {
+        velocity += gravity;
+        position += velocity;
+
+        if (position <= 0) {
+          position = 0;
+          velocity = 0;
+          isJumping = false;
+        }
+
+        dino.style.bottom = position + "px";
+      }
+
+      // 충돌 감지
+      const dinoBottom = position;
+      const cactusLeft = cactus.getBoundingClientRect().left;
+
+      if (cactusLeft < 90 && cactusLeft > 50) {
+        if (dinoBottom < 40) {
+          alert("게임 오버! 점수: " + score);
+          window.location.reload();
+        } else if (!jumpedOver) {
+          score++;
+          scoreDisplay.textContent = "점수: " + score;
+          jumpedOver = true;
+        }
+      }
+
+      if (cactusLeft <= 0) {
+        jumpedOver = false;
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") jump();
+    });
+
+    document.addEventListener("touchstart", () => {
+      jump();
+    });
+
+    gameLoop(); // 루프 시작
+  </script>
+</body>
+</html>
