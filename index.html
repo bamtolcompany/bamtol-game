@@ -72,6 +72,11 @@
     <img src="bamtol.png" id="dino">
     <div id="cactus"></div>
   </div>
+  <input type="text" id="comment">
+<button id="saveBtn">댓글 보내기</button>
+
+<div id="comments"></div>
+
 <script>
   const dino = document.getElementById("dino");
   const cactus = document.getElementById("cactus");
@@ -175,6 +180,31 @@
       pauseButton.title = "게임 계속 (p)"
     }
   }
+    var comment = document.getElementById("comment");
+  var btn = document.getElementById("saveBtn");
+  var commentsDiv = document.getElementById("comments");
+
+  btn.addEventListener("click", function() {
+    var message = comment.value;
+    fetch("https://backend-bzep.onrender.com/api/edit-comment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: message })
+    }).then(function() {
+      comment.value = "";
+      loadComments();
+    });
+  });
+
+  function loadComments() {
+    fetch("https://backend-bzep.onrender.com/api/view-comment")
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        commentsDiv.innerHTML = html;
+      });
+  }
+
+  loadComments();
 
   gameLoop(); // 루프 시작
 </script>
