@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <title>밤톨 게임</title>
@@ -10,6 +11,7 @@
       background-color: green;
       font-family: sans-serif;
     }
+
     #game {
       position: relative;
       width: 100vw;
@@ -19,6 +21,7 @@
       overflow: hidden;
       transition: 3s;
     }
+
     #dino {
       position: absolute;
       left: 50px;
@@ -28,6 +31,7 @@
       background-color: blue;
       font-size: 40px;
     }
+
     #cactus {
       position: absolute;
       right: 0;
@@ -37,10 +41,17 @@
       background-color: red;
       animation: moveCactus 1.5s linear infinite;
     }
+
     @keyframes moveCactus {
-      0% { right: -20px; }
-      100% { right: 100vw; }
+      0% {
+        right: -20px;
+      }
+
+      100% {
+        right: 100vw;
+      }
     }
+
     #score {
       position: absolute;
       top: 10px;
@@ -49,6 +60,7 @@
       font-weight: bold;
       color: #333;
     }
+
     .cloud {
       width: 300px;
       background-color: white;
@@ -57,15 +69,17 @@
       top: 80px;
       left: 120px;
     }
+
     .bar {
-        background-color: rgb(223, 255, 255);
+      background-color: rgb(223, 255, 255);
     }
   </style>
 </head>
+
 <body>
-    <div class="bar">
-        <button id="pause" onclick="pause()" tabindex="-1" onmousedown="return false" title="일시정지 (p)">일시정지</button>
-    </div>
+  <div class="bar">
+    <button id="pause" onclick="pause()" tabindex="-1" onmousedown="return false" title="일시정지 (p)">일시정지</button>
+  </div>
   <div id="game">
     <div id="score">점수: 0</div>
     <div class="cloud"></div>
@@ -73,140 +87,146 @@
     <div id="cactus"></div>
   </div>
   <input type="text" id="comment">
-<button id="saveBtn">채팅 보내기</button>
+  <button id="saveBtn">채팅 보내기</button>
 
-<div id="comments"></div>
+  <div id="comments"></div>
 
-<script>
-  const dino = document.getElementById("dino");
-  const cactus = document.getElementById("cactus");
-  const scoreDisplay = document.getElementById("score");
-  const pauseButton = document.getElementById("pause");
-  const gameDisplay = document.getElementById("game");
+  <script>
+    const dino = document.getElementById("dino");
+    const cactus = document.getElementById("cactus");
+    const scoreDisplay = document.getElementById("score");
+    const pauseButton = document.getElementById("pause");
+    const gameDisplay = document.getElementById("game");
 
-  let isJumping = false;
-  let velocity = 0;
-  let gravity = -0.8;
-  let position = 0;
-  let score = 0;
-  let jumpedOver = false;
+    let isJumping = false;
+    let velocity = 0;
+    let gravity = -0.8;
+    let position = 0;
+    let score = 0;
+    let jumpedOver = false;
 
-  let gameLoopId = null; // 루프 ID 저장
-  let isPaused = false;  // 일시정지 상태 플래그
+    let gameLoopId = null; // 루프 ID 저장
+    let isPaused = false;  // 일시정지 상태 플래그
 
-  function jump() {
-    if (isJumping || isPaused) return; // 멈췄을 때는 점프 안됨
-    isJumping = true;
-    velocity = 15; // 점프 초기 속도
-  }
-
-  function gameLoop() {
-    if (isPaused) return; // 일시정지 시 멈춤
-
-    // 점프 물리 처리
-    if (isJumping) {
-      velocity += gravity;
-      position += velocity;
-
-      if (position <= 0) {
-        position = 0;
-        velocity = 0;
-        isJumping = false;
-      }
-
-      dino.style.bottom = position + "px";
+    function jump() {
+      if (isJumping || isPaused) return; // 멈췄을 때는 점프 안됨
+      isJumping = true;
+      velocity = 15; // 점프 초기 속도
     }
 
-    // 충돌 감지
-    const dinoBottom = position;
-    const cactusLeft = cactus.getBoundingClientRect().left;
+    function gameLoop() {
+      if (isPaused) return; // 일시정지 시 멈춤
 
-    if (cactusLeft < 90 && cactusLeft > 50) {
-      if (dinoBottom < 40) {
-        if (score > 800) {
+      // 점프 물리 처리
+      if (isJumping) {
+        velocity += gravity;
+        position += velocity;
+
+        if (position <= 0) {
+          position = 0;
+          velocity = 0;
+          isJumping = false;
+        }
+
+        dino.style.bottom = position + "px";
+      }
+
+      // 충돌 감지
+      const dinoBottom = position;
+      const cactusLeft = cactus.getBoundingClientRect().left;
+
+      if (cactusLeft < 90 && cactusLeft > 50) {
+        if (dinoBottom < 40) {
+          if (score > 800) {
             alert("게임 오버! 점수: " + score + ", 축하합니다");
-        }
-        else {
+          }
+          else {
             alert("게임 오버! 점수: " + score);
+          }
+          window.location.reload();
+        } else if (!jumpedOver) {
+          score++;
+          scoreDisplay.textContent = "점수: " + score;
+          jumpedOver = true;
         }
-        window.location.reload();
-      } else if (!jumpedOver) {
-        score++;
-        scoreDisplay.textContent = "점수: " + score;
-        jumpedOver = true;
       }
-    }
 
-    if (cactusLeft <= 0) {
-      jumpedOver = false;
-    }
-    if (score % 30 === 0) {
+      if (cactusLeft <= 0) {
+        jumpedOver = false;
+      }
+      if (score % 30 === 0) {
         gameDisplay.style.backgroundColor = "black"
         if (score == 0) {
-            gameDisplay.style.backgroundColor = "powderblue"
+          gameDisplay.style.backgroundColor = "powderblue"
         }
-    }
-    else if (score % 30 === 10 || score < 11) {
+      }
+      else if (score % 30 === 10 || score < 11) {
         gameDisplay.style.backgroundColor = "powderblue"
+      }
+
+
+      gameLoopId = requestAnimationFrame(gameLoop);
     }
-    
 
-    gameLoopId = requestAnimationFrame(gameLoop);
-  }
+    document.addEventListener("keydown", (e) => {
+      const active = document.activeElement;
+      // input이나 textarea에 포커스 되어있으면 이벤트 무시
+      if (active.tagName === "INPUT" || active.tagName === "TEXTAREA") return;
 
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") jump();
-    if (e.code === "KeyP") pause(); // P키로 일시정지 토글
-  });
-
-  document.addEventListener("touchstart", () => {
-    jump();
-  });
-
-  function pause() {
-    if (isPaused) {
-      // 재시작
-      isPaused = false;
-      gameLoop();
-      pauseButton.innerHTML = "일시정지 (p)";
-      cactus.style.animationPlayState = "running";
-      pauseButton.title = "일시정지 (p)"
-    } else {
-      // 일시정지
-      isPaused = true;
-      cancelAnimationFrame(gameLoopId);
-      pauseButton.innerHTML = "게임 계속 (p)";
-      cactus.style.animationPlayState = "paused";
-      pauseButton.title = "게임 계속 (p)"
-    }
-  }
-    var comment = document.getElementById("comment");
-  var btn = document.getElementById("saveBtn");
-  var commentsDiv = document.getElementById("comments");
-
-  btn.addEventListener("click", function() {
-    var message = comment.value;
-    fetch("https://backend-bzep.onrender.com/api/edit-comment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: message })
-    }).then(function() {
-      comment.value = "";
-      loadComments();
+      if (e.code === "Space") jump();
+      if (e.code === "KeyP") pause(); // P키로 일시정지 토글
     });
-  });
 
-  function loadComments() {
-    fetch("https://backend-bzep.onrender.com/api/view-comment")
-      .then(function(res) { return res.text(); })
-      .then(function(html) {
-        commentsDiv.innerHTML = html;
+
+    document.addEventListener("touchstart", () => {
+      jump();
+    });
+
+    function pause() {
+      if (isPaused) {
+        // 재시작
+        isPaused = false;
+        gameLoop();
+        pauseButton.innerHTML = "일시정지 (p)";
+        cactus.style.animationPlayState = "running";
+        pauseButton.title = "일시정지 (p)"
+      } else {
+        // 일시정지
+        isPaused = true;
+        cancelAnimationFrame(gameLoopId);
+        pauseButton.innerHTML = "게임 계속 (p)";
+        cactus.style.animationPlayState = "paused";
+        pauseButton.title = "게임 계속 (p)"
+      }
+    }
+    var comment = document.getElementById("comment");
+    var btn = document.getElementById("saveBtn");
+    var commentsDiv = document.getElementById("comments");
+
+    btn.addEventListener("click", function () {
+      var message = comment.value;
+      fetch("https://backend-bzep.onrender.com/api/edit-comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      }).then(function () {
+        comment.value = "";
+        loadComments();
       });
-  }
+    });
 
-  loadComments();
+    function loadComments() {
+      fetch("https://backend-bzep.onrender.com/api/view-comment")
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+          commentsDiv.innerHTML = html;
+        });
+    }
 
-  gameLoop(); // 루프 시작
-</script>
+    loadComments();
+
+    gameLoop(); // 루프 시작
+  </script>
 </body>
+
 </html>
