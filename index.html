@@ -107,12 +107,13 @@
     <button id="pause" onclick="pause()" tabindex="-1" onmousedown="return false" title="일시정지 (p)">일시정지</button>
     <p id="hi"></p>
     <a id="profile" href="profile.html">마이페이지</a>
+    <p id="youName"></p>
   </div>
   <div id="game">
     <div id="score">점수: 0</div>
     <div class="cloud"></div>
     <img src="bamtol.png" id="dino">
-    <img id="cactus" src="cactus.png"></img>
+    <img id="cactus" src="cactus.png" class="pixel-art"></img>
     <img id="fruit" src="fruit.png" class="pixel-art"></img>
   </div>
   <div class="com">
@@ -131,6 +132,9 @@
     const gameDisplay = document.getElementById("game");
     const hi = document.getElementById("hi");
     const profile = document.getElementById("profile");
+    const youName = document.getElementById("youName");
+    const jumpSound = new Audio("jump.mp3");
+    const item = new Audio("fruit.mp3");
 
     let isJumping = false;
     let velocity = 0;
@@ -192,6 +196,8 @@
         // 과일 충돌 감지
         const fruitLeft = fruit.getBoundingClientRect().left;
         if (fruitLeft < 90 && fruitLeft > 50 && position < 40) {
+          item.volume = 1.0
+          item.play();
           score += 5;
           scoreDisplay.textContent = "점수: " + score;
           fruitActive = false;
@@ -250,13 +256,21 @@
       // input이나 textarea에 포커스 되어있으면 이벤트 무시
       if (active.tagName === "INPUT" || active.tagName === "TEXTAREA") return;
 
-      if (e.code === "Space") jump();
-      if (e.code === "KeyP") pause(); // P키로 일시정지 토글
+      if (e.code === "Space") {
+        jump();
+        jumpSound.volume = 0.2;
+        jumpSound.play();
+      }
+      else if (e.code === "KeyP") {
+        pause(); // P키로 일시정지 토글
+      }
     });
 
 
     document.addEventListener("touchstart", () => {
       jump();
+      jumpSound.volume = 0.2
+      jumpSound.play();
     });
 
     function pause() {
@@ -267,6 +281,7 @@
         pauseButton.innerHTML = "일시정지 (p)";
         cactus.style.animationPlayState = "running";
         pauseButton.title = "일시정지 (p)"
+        playLoop();
       } else {
         // 일시정지
         isPaused = true;
@@ -308,10 +323,62 @@
     if (localStorage.getItem("profile") === null) {
       localStorage.setItem("profile", "익명의 사용자");
     }
+    youName.innerHTML = localStorage.getItem("profile") + "님, 안녕하세요"
 
     setTimeout(() => spawnFruit(), 5000 + Math.random() * 5000);
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(frequency, duration, startTime = audioCtx.currentTime) {
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'square'; // 8비트 느낌
+      oscillator.frequency.value = frequency;
+
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(0.03, startTime);
+
+      oscillator.connect(gainNode).connect(audioCtx.destination);
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    }
+
+    // 멜로디 배열 (8비트 게임 느낌)
+    const melody = [
+      { freq: 261.63, dur: 0.15 }, // 도
+      { freq: 329.63, dur: 0.15 }, // 미
+      { freq: 392.00, dur: 0.15 }, // 솔
+      { freq: 523.25, dur: 0.3 },  // 도 (옥타브 위)
+      { freq: 440.00, dur: 0.15 }, // 라
+      { freq: 392.00, dur: 0.15 }, // 솔
+      { freq: 349.23, dur: 0.15 }, // 파
+      { freq: 329.63, dur: 0.15 }, // 미
+      { freq: 261.63, dur: 0.3 },  // 도 (마무리)
+      { freq: 329.63, dur: 0.15 }, // 미
+      { freq: 392.00, dur: 0.15 }, // 솔
+      { freq: 440.00, dur: 0.3 },  // 라
+    ];
+
+
+
+    function playLoop() {
+      if (isPaused) return;
+      let startTime = audioCtx.currentTime;
+
+      melody.forEach(note => {
+        playTone(note.freq, note.dur, startTime);
+        startTime += note.dur;
+      });
+
+      // 루프: melody가 끝나면 다시 시작
+      setTimeout(playLoop, melody.reduce((sum, n) => sum + n.dur, 0) * 1000);
+    }
+
+    // 페이지 로드 시 바로 재생 시도
+    window.addEventListener('load', () => {
+      // 자동 재생 정책 대응
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      playLoop();
+    });
   </script>
 </body>
-
 
 </html>
