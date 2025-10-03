@@ -232,15 +232,16 @@
       if (cactusLeft <= 0) {
         jumpedOver = false;
       }
-      if (score % 30 === 0) {
-        gameDisplay.style.backgroundColor = "black"
-        if (score == 0) {
-          gameDisplay.style.backgroundColor = "powderblue"
-        }
+      if (score === 0) {
+        gameDisplay.style.backgroundColor = "powderblue";
       }
-      else if (score % 30 === 10 || score < 11) {
-        gameDisplay.style.backgroundColor = "powderblue"
+      else if (score % 30 >= 1 && score % 30 <= 10) {
+        gameDisplay.style.backgroundColor = "black";
       }
+      else {
+        gameDisplay.style.backgroundColor = "powderblue";
+      }
+
 
 
       gameLoopId = requestAnimationFrame(gameLoop);
