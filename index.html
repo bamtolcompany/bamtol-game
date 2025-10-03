@@ -72,6 +72,16 @@
 
     .bar {
       background-color: rgb(223, 255, 255);
+      display:flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .com {
+      background-color: rgba(255, 255, 255, 0.7);
+      width: 50%;
+      margin: 30px;
+      border-radius: 20px;
+      padding: 20px
     }
   </style>
 </head>
@@ -79,6 +89,7 @@
 <body>
   <div class="bar">
     <button id="pause" onclick="pause()" tabindex="-1" onmousedown="return false" title="일시정지 (p)">일시정지</button>
+    <p id="hi"></p>
   </div>
   <div id="game">
     <div id="score">점수: 0</div>
@@ -86,10 +97,12 @@
     <img src="bamtol.png" id="dino">
     <div id="cactus"></div>
   </div>
-  <input type="text" id="comment">
-  <button id="saveBtn">채팅 보내기</button>
+  <div class="com">
+    <input type="text" id="comment">
+    <button id="saveBtn">채팅 보내기</button>
 
-  <div id="comments"></div>
+    <div id="comments"></div>
+  </div>
 
   <script>
     const dino = document.getElementById("dino");
@@ -97,6 +110,7 @@
     const scoreDisplay = document.getElementById("score");
     const pauseButton = document.getElementById("pause");
     const gameDisplay = document.getElementById("game");
+    const hi = document.getElementById("hi");
 
     let isJumping = false;
     let velocity = 0;
@@ -142,6 +156,9 @@
           }
           else {
             alert("게임 오버! 점수: " + score);
+          }
+          if (score > localStorage.getItem("hiScore") || localStorage.getItem("hiScore") === null) {
+            localStorage.setItem("hiScore", score);
           }
           window.location.reload();
         } else if (!jumpedOver) {
@@ -226,6 +243,7 @@
     loadComments();
 
     gameLoop(); // 루프 시작
+    hi.innerHTML = "최고 점수: " + localStorage.getItem("hiScore");
   </script>
 </body>
 
