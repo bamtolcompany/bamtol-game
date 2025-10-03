@@ -42,6 +42,16 @@
       animation: moveCactus 1.5s linear infinite;
     }
 
+    #fruit {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 30px;
+      background-color: red;
+      border-radius: 50%;
+      display: none;
+    }
+
     @keyframes moveCactus {
       0% {
         right: -20px;
@@ -84,6 +94,13 @@
       border-radius: 20px;
       padding: 20px
     }
+
+    .pixel-art {
+      image-rendering: pixelated;
+      /* 크롬, 파이어폭스, 엣지 등 */
+      image-rendering: crisp-edges;
+      /* 사파리 */
+    }
   </style>
 </head>
 
@@ -98,6 +115,7 @@
     <div class="cloud"></div>
     <img src="bamtol.png" id="dino">
     <div id="cactus"></div>
+    <img id="fruit" src="fruit.png" class="pixel-art"></img>
   </div>
   <div class="com">
     <input type="text" id="comment">
@@ -109,6 +127,7 @@
   <script>
     const dino = document.getElementById("dino");
     const cactus = document.getElementById("cactus");
+    const fruit = document.getElementById("fruit");
     const scoreDisplay = document.getElementById("score");
     const pauseButton = document.getElementById("pause");
     const gameDisplay = document.getElementById("game");
@@ -124,6 +143,19 @@
 
     let gameLoopId = null; // 루프 ID 저장
     let isPaused = false;  // 일시정지 상태 플래그
+
+    let fruitActive = false;
+    const fruitSpeed = (window.innerWidth + 30) / (1.5 * 60); // (width + fruit_width) / (duration_seconds * fps)
+
+    function spawnFruit() {
+      if (!isPaused && !fruitActive) {
+        fruitActive = true;
+        fruit.style.right = "-30px";
+        fruit.style.display = "block";
+      }
+      const nextSpawnTime = 5000 + Math.random() * 5000; // 5-10 seconds
+      setTimeout(spawnFruit, nextSpawnTime);
+    }
 
     function jump() {
       if (isJumping || isPaused) return; // 멈췄을 때는 점프 안됨
@@ -146,6 +178,27 @@
         }
 
         dino.style.bottom = position + "px";
+      }
+
+      // 과일 로직
+      if (fruitActive) {
+        let currentRight = parseFloat(fruit.style.right);
+        fruit.style.right = (currentRight + fruitSpeed) + 'px';
+
+        // 화면 밖 감지
+        if (currentRight > window.innerWidth) {
+          fruitActive = false;
+          fruit.style.display = "none";
+        }
+
+        // 과일 충돌 감지
+        const fruitLeft = fruit.getBoundingClientRect().left;
+        if (fruitLeft < 90 && fruitLeft > 50 && position < 40) {
+          score += 5;
+          scoreDisplay.textContent = "점수: " + score;
+          fruitActive = false;
+          fruit.style.display = "none";
+        }
       }
 
       // 충돌 감지
@@ -256,6 +309,8 @@
     if (localStorage.getItem("profile") === null) {
       localStorage.setItem("profile", "익명의 사용자");
     }
+
+    setTimeout(() => spawnFruit(), 5000 + Math.random() * 5000);
   </script>
 </body>
 
