@@ -230,7 +230,7 @@
       if (cactusLeft <= 0) {
         jumpedOver = false;
       }
-      if (score === 0) {
+      if (score === 0 || score < 11) {
         gameDisplay.style.backgroundColor = "powderblue";
       }
       else if (score % 30 >= 1 && score % 30 <= 10) {
@@ -312,5 +312,6 @@
     setTimeout(() => spawnFruit(), 5000 + Math.random() * 5000);
   </script>
 </body>
+
 
 </html>
