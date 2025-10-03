@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>마이 프로필</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1>내 프로필</h1>
+        <p id="name"></p>
+        <input type="text" id="edit">
+        <button id="save" onclick="edit()">저장하기</button>
+        <script>
+            const editor = document.getElementById("edit");
+            const save = document.getElementById("save");
+            const name = document.getElementById("name");
+
+            function edit() {
+                localStorage.setItem("profile", editor.value);
+                window.location.reload();
+            }
+            if (localStorage.getItem("profile") === null) {
+                localStorage.setItem("profile", "익명의 사용자");
+            }
+            name.innerHTML = localStorage.getItem("profile") + "님 안녕하세요";
+        </script>
+    </body>
+</html>

@@ -72,10 +72,11 @@
 
     .bar {
       background-color: rgb(223, 255, 255);
-      display:flex;
+      display: flex;
       gap: 10px;
       align-items: center;
     }
+
     .com {
       background-color: rgba(255, 255, 255, 0.7);
       width: 50%;
@@ -90,6 +91,7 @@
   <div class="bar">
     <button id="pause" onclick="pause()" tabindex="-1" onmousedown="return false" title="일시정지 (p)">일시정지</button>
     <p id="hi"></p>
+    <a id="profile" href="profile.html">마이페이지</a>
   </div>
   <div id="game">
     <div id="score">점수: 0</div>
@@ -111,6 +113,7 @@
     const pauseButton = document.getElementById("pause");
     const gameDisplay = document.getElementById("game");
     const hi = document.getElementById("hi");
+    const profile = document.getElementById("profile");
 
     let isJumping = false;
     let velocity = 0;
@@ -159,6 +162,11 @@
           }
           if (score > localStorage.getItem("hiScore") || localStorage.getItem("hiScore") === null) {
             localStorage.setItem("hiScore", score);
+            fetch("https://backend-bzep.onrender.com/api/edit-comment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message: localStorage.getItem("profile") + "님이 최고기록 " + score + "점을 달성했습니다." })
+            })
           }
           window.location.reload();
         } else if (!jumpedOver) {
@@ -242,8 +250,12 @@
 
     loadComments();
 
-    gameLoop(); // 루프 시작
+
+    gameLoop();
     hi.innerHTML = "최고 점수: " + localStorage.getItem("hiScore");
+    if (localStorage.getItem("profile") === null) {
+      localStorage.setItem("profile", "익명의 사용자");
+    }
   </script>
 </body>
 
